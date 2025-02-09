@@ -169,6 +169,27 @@ initDB().then((connection) => {
     res.json({ message: "Ligne de commande supprimée" });
   });
 
+  // CRUD Produits
+  app.post("/produits", async (req, res) => {
+    const { error, value } = produitSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details[0].message });
+    const sql = "INSERT INTO produits SET ?";
+    await connection.query(sql, value);
+    res.status(201).json({ message: "Produit ajouté avec succès" });
+  });
+
+  app.get("/produits", async (_req, res) => {
+    const [result] = await connection.query("SELECT * FROM produits");
+    res.json(result);
+  });
+
+  app.delete("/produits/:id", async (req, res) => {
+    await connection.query("DELETE FROM produits WHERE id_ligne = ?", [
+      req.params.id,
+    ]);
+    res.json({ message: "Produits supprimée" });
+  });
+
   const PORT = 3000;
   app.listen(PORT, () => {
     console.log(`Serveur démarré sur le port ${PORT}`);
